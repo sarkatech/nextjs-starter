@@ -1,10 +1,28 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
+import { useAuth } from "../hooks/useAuth";
+
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, isAuthenticated, loading, loginWithGoogle, logout, error } = useAuth();
+
+  const handleLogin = async () => {
+    const result = await loginWithGoogle();
+    if (result) {
+      console.log("Login successful!");
+    }
+  };
+
+  const handleLogout = async () => {
+    const success = await logout();
+    if (success) {
+      console.log("Logout successful!");
+    }
+  };
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
@@ -35,18 +53,61 @@ export default function Navbar() {
               >
                 Pricing
               </Link>
+              {isAuthenticated && (
+                <Link
+                  href="/dashboard"
+                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  Dashboard
+                </Link>
+              )}
             </div>
           </div>
 
-          {/* Desktop Auth Buttons */}
+          {/* Desktop Auth Section */}
           <div className="hidden md:block">
             <div className="ml-4 flex items-center space-x-3">
-              <button className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                Login
-              </button>
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                Sign Up
-              </button>
+              {loading ? (
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              ) : isAuthenticated && user ? (
+                <div className="flex items-center space-x-3">
+                  {/* User Avatar */}
+                  <div className="flex items-center space-x-2">
+                    {user.photoURL && (
+                      <Image
+                        src={user.photoURL}
+                        alt={user.displayName || "User"}
+                        className="w-8 h-8 rounded-full"
+                      />
+                    )}
+                    <span className="text-sm font-medium text-gray-700">
+                      {user.displayName || user.email}
+                    </span>
+                  </div>
+                  {/* Logout Button */}
+                  <button
+                    onClick={handleLogout}
+                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={handleLogin}
+                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={handleLogin}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Sign Up
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -95,18 +156,77 @@ export default function Navbar() {
           >
             Pricing
           </Link>
+          {isAuthenticated && (
+            <Link
+              href="/dashboard"
+              className="text-gray-600 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium"
+            >
+              Dashboard
+            </Link>
+          )}
+          
+          {/* Mobile Auth Section */}
           <div className="pt-4 pb-3 border-t border-gray-200">
-            <div className="flex flex-col space-y-2 px-3">
-              <button className="text-gray-600 hover:text-gray-900 text-left py-2 text-base font-medium">
-                Login
-              </button>
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-base font-medium">
-                Sign Up
-              </button>
-            </div>
+            {loading ? (
+              <div className="flex justify-center py-2">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              </div>
+            ) : isAuthenticated && user ? (
+              <div className="flex flex-col space-y-2 px-3">
+                <div className="flex items-center space-x-2 py-2">
+                  {user.photoURL && (
+                    <Image
+                      src={user.photoURL}
+                      alt={user.displayName || "User"}
+                      className="w-8 h-8 rounded-full"
+                    />
+                  )}
+                  <span className="text-sm font-medium text-gray-700">
+                    {user.displayName || user.email}
+                  </span>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="text-gray-600 hover:text-gray-900 text-left py-2 text-base font-medium"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col space-y-2 px-3">
+                <button
+                  onClick={handleLogin}
+                  className="text-gray-600 hover:text-gray-900 text-left py-2 text-base font-medium"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={handleLogin}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-base font-medium"
+                >
+                  Sign Up
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-400 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
