@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 
@@ -73,7 +74,7 @@ export default function Navbar() {
                   {/* User Avatar */}
                   <div className="flex items-center space-x-2">
                     {user.photoURL && (
-                      <img
+                      <Image
                         src={user.photoURL}
                         alt={user.displayName || "User"}
                         className="w-8 h-8 rounded-full"
@@ -174,7 +175,7 @@ export default function Navbar() {
               <div className="flex flex-col space-y-2 px-3">
                 <div className="flex items-center space-x-2 py-2">
                   {user.photoURL && (
-                    <img
+                    <Image
                       src={user.photoURL}
                       alt={user.displayName || "User"}
                       className="w-8 h-8 rounded-full"

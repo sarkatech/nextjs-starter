@@ -3,6 +3,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import Image from "next/image";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function DashboardPage() {
@@ -43,7 +44,7 @@ export default function DashboardPage() {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <div className="flex items-center space-x-4">
             {user?.photoURL && (
-              <img
+              <Image
                 src={user.photoURL}
                 alt={user.displayName || "User"}
                 className="w-16 h-16 rounded-full"
@@ -54,7 +55,7 @@ export default function DashboardPage() {
                 Welcome back, {user?.displayName || user?.email}!
               </h1>
               <p className="text-gray-600">
-                Here's what's happening with your account today.
+                {"Here's what's happening with your account today."}
               </p>
             </div>
           </div>
