@@ -21,7 +21,7 @@ export default function SignupPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/dashboard");
+      router.push("/app");
     }
   }, [isAuthenticated, router]);
 
@@ -33,7 +33,7 @@ export default function SignupPage() {
   const handleGoogleSignup = async () => {
     const result = await signUpWithGoogle();
     if (result) {
-      router.push("/dashboard");
+      router.push("/app");
     }
   };
 
@@ -63,7 +63,7 @@ export default function SignupPage() {
       
       const result = await signUpWithEmail(formData.email, formData.password, formData.name);
       if (result) {
-        router.push("/dashboard");
+        router.push("/app");
       }
     } else {
       // OTP method - not implemented yet
