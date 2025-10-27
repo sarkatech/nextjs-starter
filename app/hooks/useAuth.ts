@@ -4,6 +4,7 @@ import { signInWithPopup, signOut, UserCredential } from 'firebase/auth';
 import { useState } from 'react';
 import { useAuthContext } from '@/app/context/AuthContext';
 import { auth, googleProvider } from '@/app/lib/firebase';
+import { FirebaseError } from 'firebase/app';
 
 export const useAuth = () => {
   const { user, loading, isAuthenticated } = useAuthContext();
@@ -20,14 +21,18 @@ export const useAuth = () => {
       console.log('User signed in:', result.user.email);
       
       return result;
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error signing in with Google:', error);
       
       // Handle specific error cases
-      if (error.code === 'auth/popup-closed-by-user') {
-        setError('Sign-in was cancelled. Please try again.');
-      } else if (error.code === 'auth/popup-blocked') {
-        setError('Popup was blocked. Please allow popups and try again.');
+      if (error instanceof FirebaseError) {
+        if (error.code === 'auth/popup-closed-by-user') {
+          setError('Sign-in was cancelled. Please try again.');
+        } else if (error.code === 'auth/popup-blocked') {
+          setError('Popup was blocked. Please allow popups and try again.');
+        } else {
+          setError('Failed to sign in with Google. Please try again.');
+        }
       } else {
         setError('Failed to sign in with Google. Please try again.');
       }
@@ -51,7 +56,7 @@ export const useAuth = () => {
       console.log('User signed out successfully');
       
       return true;
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error signing out:', error);
       setError('Failed to sign out. Please try again.');
       return false;
