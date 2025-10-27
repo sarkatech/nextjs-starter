@@ -4,7 +4,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Image from "next/image";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "@/app/hooks/useAuth";
 
 export default function DashboardPage() {
   const { user, isAuthenticated, loading } = useAuth();

@@ -1,4 +1,4 @@
-import PricingCard from "../../components/PricingCard";
+import PricingCard from "../ui/components/PricingCard";
 
 export default function PricingPage() {
   const basicFeatures = [
