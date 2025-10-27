@@ -1,6 +1,5 @@
 "use client";
 
-
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Image from "next/image";
@@ -47,7 +46,9 @@ export default function DashboardPage() {
               <Image
                 src={user.photoURL}
                 alt={user.displayName || "User"}
-                className="w-16 h-16 rounded-full"
+                width={64}
+                height={64}
+                className="w-16 h-16 rounded-full object-cover"
               />
             )}
             <div>
