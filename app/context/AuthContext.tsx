@@ -1,60 +1,68 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged } from 'firebase/auth';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/app/lib/firebase';
+import { useRouter, usePathname } from 'next/navigation';
 
-
-
-// Define the shape of our auth context
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAuthenticated: boolean;
 }
 
-// Create the context with default values
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   isAuthenticated: false,
 });
 
-// Custom hook to use the auth context
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuthContext must be used within an AuthProvider');
+  if (!context) {
+    throw new Error('useAuthContext must be used within AuthProvider');
   }
   return context;
 };
 
-// AuthProvider component to wrap the app
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    // Listen for authentication state changes
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log('Auth state changed:', user?.email || 'No user');
       setUser(user);
       setLoading(false);
+
+      // Redirect logic based on auth state
+      const isAppRoute = pathname?.startsWith('/app');
+      const isHomePage = pathname === '/';
+
+      if (user) {
+        // User is authenticated
+        if (isHomePage) {
+          // If on homepage, redirect to app
+          router.push('/app');
+        }
+      } else {
+        // User is not authenticated
+        if (isAppRoute) {
+          // If trying to access app routes, redirect to home
+          router.push('/');
+        }
+      }
     });
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, []);
+  }, [router, pathname]);
 
-  const value: AuthContextType = {
+  const value = {
     user,
     loading,
     isAuthenticated: !!user,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

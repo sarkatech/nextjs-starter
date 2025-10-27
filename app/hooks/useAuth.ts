@@ -2,6 +2,7 @@
 
 import { signInWithPopup, signOut, UserCredential } from 'firebase/auth';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/app/context/AuthContext';
 import { auth, googleProvider } from '@/app/lib/firebase';
 import { FirebaseError } from 'firebase/app';
@@ -10,8 +11,8 @@ export const useAuth = () => {
   const { user, loading, isAuthenticated } = useAuthContext();
   const [authLoading, setAuthLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
-  // Sign up/Sign in with Google (same function for both)
   const signUpWithGoogle = async (): Promise<UserCredential | null> => {
     try {
       setAuthLoading(true);
@@ -20,11 +21,13 @@ export const useAuth = () => {
       const result = await signInWithPopup(auth, googleProvider);
       console.log('User signed in:', result.user.email);
       
+      // Redirect to /app after successful sign-in
+      router.push('/app');
+      
       return result;
     } catch (error) {
       console.error('Error signing in with Google:', error);
       
-      // Handle specific error cases
       if (error instanceof FirebaseError) {
         if (error.code === 'auth/popup-closed-by-user') {
           setError('Sign-in was cancelled. Please try again.');
@@ -43,10 +46,8 @@ export const useAuth = () => {
     }
   };
 
-  // Login with Google (alias for signUpWithGoogle)
   const loginWithGoogle = signUpWithGoogle;
 
-  // Logout function
   const logout = async (): Promise<boolean> => {
     try {
       setAuthLoading(true);
@@ -54,6 +55,9 @@ export const useAuth = () => {
       
       await signOut(auth);
       console.log('User signed out successfully');
+      
+      // Redirect to home after logout
+      router.push('/');
       
       return true;
     } catch (error) {
@@ -65,17 +69,13 @@ export const useAuth = () => {
     }
   };
 
-  // Clear error function
   const clearError = () => setError(null);
 
   return {
-    // User state
     user,
     loading: loading || authLoading,
     isAuthenticated,
     error,
-    
-    // Auth functions
     signUpWithGoogle,
     loginWithGoogle,
     logout,

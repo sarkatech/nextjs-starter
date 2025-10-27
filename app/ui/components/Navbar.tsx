@@ -5,17 +5,9 @@ import Image from "next/image";
 import { useState } from "react";
 import { useAuth } from "@/app/hooks/useAuth";
 
-
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isAuthenticated, loading, loginWithGoogle, logout, error } = useAuth();
-
-  const handleLogin = async () => {
-    const result = await loginWithGoogle();
-    if (result) {
-      console.log("Login successful!");
-    }
-  };
+  const { user, isAuthenticated, loading, logout } = useAuth();
 
   const handleLogout = async () => {
     const success = await logout();
@@ -55,7 +47,7 @@ export default function Navbar() {
               </Link>
               {isAuthenticated && (
                 <Link
-                  href="/dashboard"
+                  href="/app"
                   className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Dashboard
@@ -77,6 +69,8 @@ export default function Navbar() {
                       <Image
                         src={user.photoURL}
                         alt={user.displayName || "User"}
+                        width={32}
+                        height={32}
                         className="w-8 h-8 rounded-full"
                       />
                     )}
@@ -94,18 +88,18 @@ export default function Navbar() {
                 </div>
               ) : (
                 <div className="flex items-center space-x-3">
-                  <button
-                    onClick={handleLogin}
+                  <Link
+                    href="/login"
                     className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                   >
                     Login
-                  </button>
-                  <button
-                    onClick={handleLogin}
+                  </Link>
+                  <Link
+                    href="/signup"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                   >
                     Sign Up
-                  </button>
+                  </Link>
                 </div>
               )}
             </div>
@@ -158,7 +152,7 @@ export default function Navbar() {
           </Link>
           {isAuthenticated && (
             <Link
-              href="/dashboard"
+              href="/app"
               className="text-gray-600 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium"
             >
               Dashboard
@@ -178,6 +172,8 @@ export default function Navbar() {
                     <Image
                       src={user.photoURL}
                       alt={user.displayName || "User"}
+                      width={32}
+                      height={32}
                       className="w-8 h-8 rounded-full"
                     />
                   )}
@@ -194,39 +190,23 @@ export default function Navbar() {
               </div>
             ) : (
               <div className="flex flex-col space-y-2 px-3">
-                <button
-                  onClick={handleLogin}
+                <Link
+                  href="/login"
                   className="text-gray-600 hover:text-gray-900 text-left py-2 text-base font-medium"
                 >
                   Login
-                </button>
-                <button
-                  onClick={handleLogin}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-base font-medium"
+                </Link>
+                <Link
+                  href="/signup"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-base font-medium text-center"
                 >
                   Sign Up
-                </button>
+                </Link>
               </div>
             )}
           </div>
         </div>
       </div>
-
-      {/* Error Display */}
-      {error && (
-        <div className="bg-red-50 border-l-4 border-red-400 p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-          </div>
-        </div>
-      )}
     </nav>
   );
 }
