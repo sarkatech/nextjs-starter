@@ -28,6 +28,7 @@ export default function LoginPage() {
     e.preventDefault();
     // TODO: Implement email/password or OTP authentication
     console.log("Email submitted:", email);
+    alert('not implemented yet');
   };
 
   if (loading) {
