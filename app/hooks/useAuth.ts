@@ -2,8 +2,8 @@
 
 import { signInWithPopup, signOut, UserCredential } from 'firebase/auth';
 import { useState } from 'react';
-import { useAuthContext } from '../context/AuthContext';
-import { auth, googleProvider } from '../lib/firebase';
+import { useAuthContext } from '@/app/context/AuthContext';
+import { auth, googleProvider } from '@/app/lib/firebase';
 
 export const useAuth = () => {
   const { user, loading, isAuthenticated } = useAuthContext();
