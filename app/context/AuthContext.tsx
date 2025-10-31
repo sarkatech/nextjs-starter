@@ -1,17 +1,22 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '@/app/lib/firebase';
-import { useRouter, usePathname } from 'next/navigation';
+import { createContext, useContext, useEffect, useState } from "react";
+import { onAuthStateChanged, UserInfo, User as FirebaseUser } from "firebase/auth";
+import { auth } from "@/app/lib/firebase";
+import { Claims } from 'next-firebase-auth-edge/lib/auth/claims';
 
-interface AuthContextType {
+export interface User extends UserInfo {
+  emailVerified: boolean;
+  customClaims: Claims;
+}
+
+interface AuthContextValue {
   user: User | null;
   loading: boolean;
   isAuthenticated: boolean;
 }
 
-const AuthContext = createContext<AuthContextType>({
+const AuthContext = createContext<AuthContextValue>({
   user: null,
   loading: true,
   isAuthenticated: false,
@@ -20,7 +25,7 @@ const AuthContext = createContext<AuthContextType>({
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuthContext must be used within AuthProvider');
+    throw new Error("useAuthContext must be used within AuthProvider");
   }
   return context;
 };
@@ -28,35 +33,34 @@ export const useAuthContext = () => {
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-
-      // Redirect logic based on auth state
-      const isAppRoute = pathname?.startsWith('/app');
-      const isHomePage = pathname === '/';
-
-      if (user) {
-        // User is authenticated
-        if (isHomePage) {
-          // If on homepage, redirect to app
-          router.push('/app');
-        }
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // Get the ID token result to access custom claims
+        const idTokenResult = await firebaseUser.getIdTokenResult();
+        
+        // Transform Firebase user to your custom User type
+        const customUser: User = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          photoURL: firebaseUser.photoURL,
+          phoneNumber: firebaseUser.phoneNumber,
+          providerId: firebaseUser.providerId,
+          emailVerified: firebaseUser.emailVerified,
+          customClaims: idTokenResult.claims as Claims,
+        };
+        
+        setUser(customUser);
       } else {
-        // User is not authenticated
-        if (isAppRoute) {
-          // If trying to access app routes, redirect to home
-          router.push('/');
-        }
+        setUser(null);
       }
+      setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [router, pathname]);
+  }, []);
 
   const value = {
     user,

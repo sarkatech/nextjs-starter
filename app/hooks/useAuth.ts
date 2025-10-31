@@ -137,6 +137,8 @@ export const useAuth = () => {
   // Login with Google (alias for signUpWithGoogle)
   const loginWithGoogle = signUpWithGoogle;
 
+
+
   // Reset password
   /*const resetPassword = async (email: string): Promise<boolean> => {
     try {
@@ -193,6 +195,20 @@ export const useAuth = () => {
   // Clear error function
   const clearError = () => setError(null);
 
+  // Valida el token en el backend
+  const validateSession = async (): Promise<boolean> => {
+    try {
+      const res = await fetch("/api/auth/validate", {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+      return data.valid === true;
+    } catch {
+      return false;
+    }
+  };
+
   return {
     // User state
     user,
@@ -208,5 +224,6 @@ export const useAuth = () => {
     //resetPassword,
     logout,
     clearError,
+    validateSession,
   };
 };
