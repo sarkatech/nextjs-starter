@@ -1,21 +1,29 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
-  if (pathname.startsWith('/app')) {
-    // Check for auth token/session (you'll need to implement this based on your auth setup)
-    const authToken = request.cookies.get('__session')?.value;
-    
-    if (!authToken) {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
+
+  if (
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/pricing") ||
+    pathname.startsWith("/")
+  ) {
+    return NextResponse.next();
   }
-  
+
+  const sessionCookie = request.cookies.get("__session");
+  if (!sessionCookie) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: '/app/:path*',
+  matcher: ["/((?!_next|api|login|favicon.ico).*)"],
 };

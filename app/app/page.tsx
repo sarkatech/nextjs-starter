@@ -1,19 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import Image from "next/image";
 import { useAuth } from "@/app/hooks/useAuth";
 
 export default function DashboardPage() {
   const { user, isAuthenticated, loading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push('/');
-    }
-  }, [isAuthenticated, loading, router]);
 
   if (loading) {
     return (
@@ -70,7 +61,7 @@ export default function DashboardPage() {
               <p><span className="font-medium">Name:</span> {user?.displayName || 'Not provided'}</p>
               <p><span className="font-medium">Email:</span> {user?.email}</p>
               <p><span className="font-medium">Email Verified:</span> {user?.emailVerified ? 'Yes' : 'No'}</p>
-              <p><span className="font-medium">Account Created:</span> {user?.metadata.creationTime}</p>
+              {/*<p><span className="font-medium">Account Created:</span> {user?.metadata.creationTime}</p>*/}
             </div>
           </div>
 
@@ -80,7 +71,7 @@ export default function DashboardPage() {
               <p><span className="font-medium">Plan:</span> Free Trial</p>
               <p><span className="font-medium">Projects:</span> 0</p>
               <p><span className="font-medium">Storage Used:</span> 0 MB</p>
-              <p><span className="font-medium">Last Login:</span> {user?.metadata.lastSignInTime}</p>
+              {/*<p><span className="font-medium">Last Login:</span> {user?.metadata.lastSignInTime}</p>*/}
             </div>
           </div>
 
