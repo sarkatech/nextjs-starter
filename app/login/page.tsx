@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/hooks/useAuth";
 import Link from "next/link";
+import { setCookie } from "cookies-next";
+import { getTokens } from "next-firebase-auth-edge/next/tokens";
 
 export default function LoginPage() {
   const { loginWithGoogle, isAuthenticated, loading, error } = useAuth();
@@ -11,16 +13,22 @@ export default function LoginPage() {
   const [authMethod, setAuthMethod] = useState<"otp" | "password">("otp");
   const [email, setEmail] = useState("");
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/app");
-    }
-  }, [isAuthenticated, router]);
-
   const handleGoogleLogin = async () => {
     const result = await loginWithGoogle();
-    if (result) {
-      router.push("/app");
+    try {
+      if (result?.user) {
+        const idToken = await result.user.getIdToken();
+        const tokens = { idToken }; // You may need to fetch refreshToken if needed
+
+        // If you need to use getTokens, pass cookies (not user object) as in middleware.ts
+        // Example: const tokens = await getTokens({} as RequestCookies, { ...config });
+        setCookie("__session", tokens.idToken);
+
+        router.push("/app"); // redirige al dashboard
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Login failed. Please try again.");
     }
   };
 
@@ -28,7 +36,7 @@ export default function LoginPage() {
     e.preventDefault();
     // TODO: Implement email/password or OTP authentication
     console.log("Email submitted:", email);
-    alert('not implemented yet');
+    alert("not implemented yet");
   };
 
   if (loading) {
@@ -83,7 +91,7 @@ export default function LoginPage() {
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-400"
             required
           />
-          
+
           <button
             type="submit"
             className="w-full mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg"
@@ -123,7 +131,9 @@ export default function LoginPage() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            <span className="text-blue-600 font-semibold">Login With Google</span>
+            <span className="text-blue-600 font-semibold">
+              Login With Google
+            </span>
           </button>
         </div>
 
@@ -136,8 +146,11 @@ export default function LoginPage() {
 
         {/* Sign Up Link */}
         <div className="mt-6 text-center">
-          <span className="text-gray-600">Don`&apos;`t have an account? </span>
-          <Link href="/signup" className="text-blue-600 font-semibold hover:text-blue-700">
+          <span className="text-gray-600">Don&apos;t have an account? </span>
+          <Link
+            href="/signup"
+            className="text-blue-600 font-semibold hover:text-blue-700"
+          >
             Sign up
           </Link>
         </div>
